@@ -13,7 +13,7 @@ public class WorkItem implements Comparable {
 
     public void setUrl(String url) {
         if (!url.startsWith("https://www.youtube.com")) {
-            url = "https://www.youtube.com" + url;
+            url = "https://www.youtube.com/" + url;
         }
         this.url = url;
     }

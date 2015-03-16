@@ -3,35 +3,40 @@ import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import org.opencv.highgui.VideoCapture;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 
 public class VideoParser {
+
     private VideoCapture video = null;
     public static final String LOG_PATH_VIDEOPARSER="/tmp/videoparser.txt";
-    //frames frequency
     private int frameFreqNumber = 1;
     private PrintWriter logWriter;
-    public VideoParser(String videoPath, String outPath, int frameFreqNumber) throws FileNotFoundException {
+
+    public VideoParser(File videoFile, File outPath, int frameFreqNumber) throws FileNotFoundException {
         FileOutputStream logStr = new FileOutputStream(LOG_PATH_VIDEOPARSER, false);
         logWriter = new PrintWriter(logStr);
+        String videoFilePath = videoFile.getAbsolutePath();
+        logWriter.println("open file " + videoFilePath);
+
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        if(frameFreqNumber >1) {
+        if(frameFreqNumber > 1) {
             this.frameFreqNumber = frameFreqNumber;
         }
         this.video = new VideoCapture();
         try {
-            video.open(videoPath);
+            video.open(videoFilePath);
         }catch (Exception e){
             logWriter.println(e);
         }
         if(!video.isOpened()){
             logWriter.println("can't open video");
-            throw new FileNotFoundException(videoPath);
+            throw new FileNotFoundException(videoFilePath);
         } else {
             logWriter.println("video opened");
-            getFrames(outPath);
+            getFrames(outPath.getAbsolutePath());
             video.release();
         }
        // video.release();
@@ -47,16 +52,13 @@ public class VideoParser {
     }
 
     public void getFrames(String outPath) {
-        String p = outPath;
-        String e = ".jpg";
-        int i=1;
-        String name = "";
+        int i = 1;
         Mat frame = new Mat();
-        int k=1;
+        int k = 1;
         while(video.read(frame)){
-            if(k==frameFreqNumber){
-                logWriter.println("get " + i + " frame");
-                String res = p + name + i + e;
+            if(k == frameFreqNumber) {
+                logWriter.println("get " + String.format("%08d", i) + " frame");
+                String res = outPath + "/" + String.format("%08d", i) + ".jpg";
                 Highgui.imwrite(res, frame);
                 i++;
                 k=0;
