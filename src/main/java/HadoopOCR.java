@@ -14,7 +14,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
 
-public class OCRMapReduce {
+public class HadoopOCR {
     public static class Map extends MapReduceBase implements Mapper<LongWritable, Text, Text, Text> {
         private Text word = new Text();
         public void map(LongWritable key, Text url, OutputCollector<Text, Text> output, Reporter reporter) throws IOException {
@@ -25,7 +25,7 @@ public class OCRMapReduce {
             System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
             File[] videoFiles = videoDownloadDir.listFiles();
             Arrays.sort(videoFiles);
-            File[] videoFramesFiles = VideoProcessing.parseVideo(videoFiles[0], 60);
+            File[] videoFramesFiles = VideoProcessing.parseVideo(videoFiles[0], 70);
             File[] processedVideoFrames = VideoProcessing.cutImages(videoFramesFiles);
 
             Tesseract instance = Tesseract.getInstance();
@@ -59,7 +59,7 @@ public class OCRMapReduce {
     }
 
     public static void main(String[] args) throws Exception {
-        JobConf conf = new JobConf(OCRMapReduce.class);
+        JobConf conf = new JobConf(HadoopOCR.class);
         conf.setJobName("downloader");
 
         conf.setOutputKeyClass(Text.class);
